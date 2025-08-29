@@ -352,7 +352,7 @@ jobs:
             echo "Toolchain not selected"
             exit 1
         fi
-        export KBUILD_BUILD_HOST=Github-Action
+        export KBUILD_BUILD_HOST=Lamp1onPrjkt
         export KBUILD_BUILD_USER=$(echo ${{ github.actor }} | tr A-Z a-z)
         if [ -n ${{ env.KSU_EXPECTED_SIZE }} ] && [ -n ${{ env.KSU_EXPECTED_HASH }} ]; then
           export KSU_EXPECTED_SIZE=${{ env.KSU_EXPECTED_SIZE }}
