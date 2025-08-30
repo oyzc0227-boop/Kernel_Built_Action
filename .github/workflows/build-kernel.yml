@@ -454,19 +454,25 @@ jobs:
             exit 1
         fi
 
+    - name: Export kernel localversion
+      run: |
+        LOCALVERSION=$(grep '^CONFIG_LOCALVERSION=' kernel_workspace/android-kernel/.config | cut -d '"' -f2)
+        echo "KERNEL_LOCALVERSION=${LOCALVERSION}" >> $GITHUB_ENV
+
     - name: Upload AnyKernel3
       if: env.CHECK_FILE_IS_OK == 'true'
       uses: actions/upload-artifact@v4
       with:
-        name: AnyKernel3${{ env.LOCALVERSION }}${{ env.UPLOADNAME }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}
+        name: ${{ env.KERNEL_LOCALVERSION }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}
         path: kernel_workspace/AnyKernel3/*
 
-    - name: Upload kernel image
+    - name: Upload Kernel Image
       if: env.CHECK_FILE_IS_OK == 'true'
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.KERNEL_IMAGE_NAME }}${{ env.LOCALVERSION }}${{ env.UPLOADNAME }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}
+        name: ${{ env.KERNEL_LOCALVERSION }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}
         path: kernel_workspace/android-kernel/out/arch/${{ env.KERNEL_ARCH }}/boot/${{ env.KERNEL_IMAGE_NAME }}
+
 
     - name: Upload DTBO image
       if: env.CHECK_DTBO_IS_OK == 'true'
