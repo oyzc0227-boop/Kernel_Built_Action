@@ -403,8 +403,8 @@ jobs:
         mkdir $GITHUB_WORKSPACE/kernel_workspace/SukiSU-Patch
         cd $GITHUB_WORKSPACE/kernel_workspace/SukiSU-Patch
         wget ${{ env.KPM_URL }}
-        cp $OUT_BOOT/${{ env.KERNEL_IMAGE_NAME }} Image
-        cp $OUT_BOOT/dts/mediatek/*.dtb .
+        cp $OUT_BOOT/Image ./
+        cp $OUT_BOOT/dts/mediatek/mt6768.dtb ./
         chmod +x patch_linux
         ./patch_linux
         mv -f oImage Image
