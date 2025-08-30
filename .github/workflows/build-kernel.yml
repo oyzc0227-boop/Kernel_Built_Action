@@ -467,7 +467,6 @@ jobs:
         [ -z "$KERNEL_NAME" ] && KERNEL_NAME="CustomKernel"
         echo "KERNEL_LOCALVERSION=${KERNEL_NAME}" >> $GITHUB_ENV
 
-
     - name: Upload AnyKernel3
       if: env.CHECK_FILE_IS_OK == 'true'
       uses: actions/upload-artifact@v4
