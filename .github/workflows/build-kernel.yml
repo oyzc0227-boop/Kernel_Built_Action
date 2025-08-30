@@ -461,7 +461,7 @@ jobs:
 
     - name: Export kernel localversion
       run: |
-        LOCALVERSION=$(grep '^CONFIG_LOCALVERSION=' kernel_workspace/android-kernel/.config | cut -d '"' -f2)
+        LOCALVERSION=$(grep '^CONFIG_LOCALVERSION=' kernel_workspace/android-kernel/arch/${{ env.KERNEL_ARCH }}/configs/${DEVICE}_defconfig | cut -d '"' -f2)
         echo "KERNEL_LOCALVERSION=${LOCALVERSION}" >> $GITHUB_ENV
 
     - name: Upload AnyKernel3
