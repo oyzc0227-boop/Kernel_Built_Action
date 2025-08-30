@@ -459,10 +459,14 @@ jobs:
             exit 1
         fi
 
-    - name: Export kernel localversion
+    - name: Export kernel name from defconfig
       run: |
-        LOCALVERSION=$(grep '^CONFIG_LOCALVERSION=' kernel_workspace/android-kernel/arch/${{ env.KERNEL_ARCH }}/configs/${DEVICE}_defconfig | cut -d '"' -f2)
-        echo "KERNEL_LOCALVERSION=${LOCALVERSION}" >> $GITHUB_ENV
+        DEFCONFIG_FILE="kernel_workspace/android-kernel/arch/${{ env.KERNEL_ARCH }}/configs/${DEVICE}_defconfig"
+        RAW_LOCALVERSION=$(grep -oP 'CONFIG_LOCALVERSION="\K[^"]+' "$DEFCONFIG_FILE")
+        KERNEL_NAME=$(echo "$RAW_LOCALVERSION" | sed 's/^-//')
+        [ -z "$KERNEL_NAME" ] && KERNEL_NAME="CustomKernel"
+        echo "KERNEL_LOCALVERSION=${KERNEL_NAME}" >> $GITHUB_ENV
+
 
     - name: Upload AnyKernel3
       if: env.CHECK_FILE_IS_OK == 'true'
