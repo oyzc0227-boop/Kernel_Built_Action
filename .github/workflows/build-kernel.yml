@@ -391,6 +391,22 @@ jobs:
            fi
        fi
 
+    - name: Patch SukiSU Ultra KPM
+      if: env.CHECK_FILE_IS_OK == 'true' && env.KPM_SUPPORT == 'true'
+      run: |
+        OUT_BOOT=$GITHUB_WORKSPACE/kernel_workspace/android-kernel/out/arch/${{ env.KERNEL_ARCH }}/boot
+        mkdir $GITHUB_WORKSPACE/kernel_workspace/SukiSU-Patch
+        cd $GITHUB_WORKSPACE/kernel_workspace/SukiSU-Patch
+        wget ${{ env.KPM_URL }}
+        cp $OUT_BOOT/${{ env.KERNEL_IMAGE_NAME }} Image
+        cp $OUT_BOOT/dts/qcom/*.dtb .
+        chmod +x patch_linux
+        ./patch_linux
+        mv -f oImage Image
+        gzip -k Image
+        cat Image.gz *.dtb > Image.gz-dtb
+        mv -f Image.gz-dtb $OUT_BOOT/${{ env.KERNEL_IMAGE_NAME }}
+
     - name: Create flashable Anykernel3 zip
       if: env.CHECK_FILE_IS_OK == 'true' && env.USE_ANYKERNEL3 == 'true'
       run: |
