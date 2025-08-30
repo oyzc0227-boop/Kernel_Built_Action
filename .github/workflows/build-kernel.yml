@@ -404,7 +404,7 @@ jobs:
         cd $GITHUB_WORKSPACE/kernel_workspace/SukiSU-Patch
         wget ${{ env.KPM_URL }}
         cp $OUT_BOOT/${{ env.KERNEL_IMAGE_NAME }} Image
-        cp $OUT_BOOT/dts/qcom/*.dtb .
+        cp $OUT_BOOT/dts/mediatek/*.dtb .
         chmod +x patch_linux
         ./patch_linux
         mv -f oImage Image
@@ -477,7 +477,6 @@ jobs:
       with:
         name: ${{ env.KERNEL_LOCALVERSION }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}
         path: kernel_workspace/android-kernel/out/arch/${{ env.KERNEL_ARCH }}/boot/${{ env.KERNEL_IMAGE_NAME }}
-
 
     - name: Upload DTBO image
       if: env.CHECK_DTBO_IS_OK == 'true'
