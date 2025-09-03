@@ -39,6 +39,16 @@ on:
         required: true
         default: true
         type: boolean
+      build_rksu:
+        description: 'Build RsuntkKernelSU A13+'
+        required: true
+        default: true
+        type: boolean
+      build_rksu_old:
+        description: 'Build RsuntkKernelSU A11'
+        required: true
+        default: true
+        type: boolean
 
 jobs:
   generate-build-matrix:
@@ -57,6 +67,8 @@ jobs:
           if [[ "${{ github.event.inputs.build_suki_old }}" == "true" ]]; then targets+=("suki-old"); fi
           if [[ "${{ github.event.inputs.build_wild }}" == "true" ]]; then targets+=("wild"); fi
           if [[ "${{ github.event.inputs.build_wild_old }}" == "true" ]]; then targets+=("wild-old"); fi
+          if [[ "${{ github.event.inputs.build_rksu }}" == "true" ]]; then targets+=("rksu"); fi
+          if [[ "${{ github.event.inputs.build_rksu_old }}" == "true" ]]; then targets+=("rksu-old"); fi
           json=$(printf '%s\n' "${targets[@]}" | jq -R . | jq -s '{target: .}')
           echo "matrix<<EOF" >> $GITHUB_OUTPUT
           echo "$json" >> $GITHUB_OUTPUT
@@ -94,15 +106,17 @@ jobs:
         TARGET_CONFIG_FILENAME_SUFFIX=$TARGET_CONFIG_FILENAME
 
         if [[ "$TARGET_CONFIG_FILENAME_SUFFIX" == "wild" ]]; then
-            grep -v -E "^#|^\n" config-wild.env | sed 's/ #.*//; s/#.*//' >> $GITHUB_ENV
+          grep -v -E "^#|^\n" config-wild.env | sed 's/ #.*//; s/#.*//' >> $GITHUB_ENV
+        elif [[ "$TARGET_CONFIG_FILENAME_SUFFIX" == "rksu" ]]; then
+          grep -v -E "^#|^\n" config-rksu.env | sed 's/ #.*//; s/#.*//' >> $GITHUB_ENV
         else
-            grep -v -E "^#|^\n" config-${TARGET_CONFIG_FILENAME_SUFFIX}.env | sed 's/ #.*//; s/#.*//' >> $GITHUB_ENV
+          grep -v -E "^#|^\n" config-${TARGET_CONFIG_FILENAME_SUFFIX}.env | sed 's/ #.*//; s/#.*//' >> $GITHUB_ENV
         fi
 
         if [[ "${{ matrix.target }}" == *"-old" ]]; then
-            echo "ANDROID_TAG=[A11]" >> $GITHUB_ENV
+          echo "ANDROID_TAG=[A11+]" >> $GITHUB_ENV
         else
-            echo "ANDROID_TAG=[A13+]" >> $GITHUB_ENV
+          echo "ANDROID_TAG=[A13+]" >> $GITHUB_ENV
         fi
 
     - name: Set build time (Jakarta)
