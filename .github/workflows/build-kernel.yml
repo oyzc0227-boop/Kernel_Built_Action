@@ -124,10 +124,10 @@ jobs:
       run: |
         echo "OLD_ANDROID_SUPPORT=true" >> $GITHUB_ENV
 
-    - name: Set swap to 10G
+    - name: Set swap to 5G
       uses: pierotofy/set-swap-space@master
       with:
-        swap-size-gb: 10
+        swap-size-gb: 5
 
     - name: Setup kernel build environment
       run: |
