@@ -114,7 +114,7 @@ jobs:
         fi
 
         if [[ "${{ matrix.target }}" == *"-old" ]]; then
-          echo "ANDROID_TAG=[A11+]" >> $GITHUB_ENV
+          echo "ANDROID_TAG=[A11-12]" >> $GITHUB_ENV
         else
           echo "ANDROID_TAG=[A13+]" >> $GITHUB_ENV
         fi
