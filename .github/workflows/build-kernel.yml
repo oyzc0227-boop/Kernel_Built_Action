@@ -520,7 +520,13 @@ jobs:
           ZIP_NAME="${{ env.ANDROID_TAG }}${{ env.KERNEL_LOCALVERSION }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}.zip"
           FILE="kernel_workspace/AnyKernel3/$ZIP_NAME"
 
-          CAPTION=$'Lamp1onKernel Build\n━━━━━━━━━━━━━━━\n📱 Device: Redmi Note 9\n🏷 Codename: Merlin\n🌿 Branch: '${{ env.GITHUB_REF_NAME }}$'\n🔧 KPM Version: Not Integrate\n🛡 SusFs Version: Not Integrate\n📌 Compatible: '${{ env.ANDROID_TAG }}$'\n📅 Build: '${{ env.BUILD_TIME }}$'\n━━━━━━━━━━━━━━━'
+          if [ "$KPM_SUPPORT" = "true" ]; then
+            KPM_STATUS="Integrated"
+          else
+            KPM_STATUS="Not Integrated"
+          fi
+
+          CAPTION=$'Lamp1onKernel Build\n━━━━━━━━━━━━━━━\n📱 Device: '"${{ env.DEVICE }}"$'\n🌿 Branch: '"$KERNEL_SOURCE_BRANCH"$'\n🔧 KPM Version: '"$KPM_STATUS"$'\n🛡 SusFs Version: Not Integrated\n📌 Compatible: '"${{ env.ANDROID_TAG }}"$'\n📅 Build: '"${{ env.BUILD_TIME }}"$'\n━━━━━━━━━━━━━━━'
 
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.BOT_TOKEN }}/sendDocument" \
             -F chat_id=${{ secrets.CHAT_ID }} \
