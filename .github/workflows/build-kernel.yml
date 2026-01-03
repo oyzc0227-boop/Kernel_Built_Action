@@ -506,15 +506,22 @@ jobs:
           name: ${{ env.ANDROID_TAG }}${{ env.KERNEL_LOCALVERSION }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}
           path: kernel_workspace/AnyKernel3/*
 
+      - name: Zip AnyKernel3
+        if: env.CHECK_FILE_IS_OK == 'true'
+        run: |
+          cd kernel_workspace/AnyKernel3
+          zip -r AnyKernel3.zip .
+
       - name: Send AnyKernel3 to Telegram
         if: env.CHECK_FILE_IS_OK == 'true'
         run: |
-          FILE=$(ls kernel_workspace/AnyKernel3/*.zip | head -n 1)
+          FILE="kernel_workspace/AnyKernel3/AnyKernel3.zip"
 
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.BOT_TOKEN }}/sendDocument" \
             -F chat_id=${{ secrets.CHAT_ID }} \
             -F document=@"$FILE" \
-            -F caption="✅ Kernel build done\n📦 $(basename $FILE)"
+            -F caption="✅ Kernel build done
+            📦 AnyKernel3.zip"
 
       - name: Upload Kernel Image
         if: env.CHECK_FILE_IS_OK == 'true'
