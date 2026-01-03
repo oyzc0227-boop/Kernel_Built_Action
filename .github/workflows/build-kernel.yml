@@ -509,19 +509,23 @@ jobs:
       - name: Zip AnyKernel3
         if: env.CHECK_FILE_IS_OK == 'true'
         run: |
+          ZIP_NAME="${{ env.ANDROID_TAG }}${{ env.KERNEL_LOCALVERSION }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}.zip"
+
           cd kernel_workspace/AnyKernel3
-          zip -r AnyKernel3.zip .
+          zip -r "$ZIP_NAME" .
 
       - name: Send AnyKernel3 to Telegram
         if: env.CHECK_FILE_IS_OK == 'true'
         run: |
-          FILE="kernel_workspace/AnyKernel3/AnyKernel3.zip"
+          ZIP_NAME="${{ env.ANDROID_TAG }}${{ env.KERNEL_LOCALVERSION }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}.zip"
+          FILE="kernel_workspace/AnyKernel3/$ZIP_NAME"
+
+          CAPTION=$'Lamp1onKernel Build\n━━━━━━━━━━━━━━━\n📱 Device: Redmi Note 9\n🏷 Codename: Merlin\n🌿 Branch: '${{ env.GITHUB_REF_NAME }}$'\n🔧 KPM Version: Not Integrate\n🛡 SusFs Version: Not Integrate\n📌 Compatible: '${{ env.ANDROID_TAG }}$'\n📅 Build: '${{ env.BUILD_TIME }}$'\n━━━━━━━━━━━━━━━'
 
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.BOT_TOKEN }}/sendDocument" \
             -F chat_id=${{ secrets.CHAT_ID }} \
             -F document=@"$FILE" \
-            -F caption="✅ Kernel build done
-            📦 AnyKernel3.zip"
+            -F caption="$CAPTION"
 
       - name: Upload Kernel Image
         if: env.CHECK_FILE_IS_OK == 'true'
