@@ -270,6 +270,14 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
           curl -LSs "$KERNELSU_SETUP_SOURCE" | bash -s ${{ env.KERNELSU_TAG }}
+          if [ -d KernelSU ]; then
+            cd KernelSU
+          else
+            cd $(echo "$KERNELSU_SETUP_SOURCE" | cut -d/ -f5)
+          fi
+          git fetch origin susfs-rksu-master
+          git checkout -B susfs-rksu-master origin/susfs-rksu-master
+          cd ..
           KSU_VERSION="_$(cd $(echo "$KERNELSU_SETUP_SOURCE" | cut -d/ -f5) || cd KernelSU && expr $(git rev-list --count HEAD) + 10200)"
           echo "UPLOADNAME=-KernelSU-${{ matrix.target }}$KSU_VERSION" >> $GITHUB_ENV
           if [ ${{ env.KSU_REVERT }} = true ]; then
