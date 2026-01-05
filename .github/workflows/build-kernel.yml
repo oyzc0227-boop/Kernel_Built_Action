@@ -526,7 +526,7 @@ jobs:
             KPM_STATUS="Not Integrated"
           fi
 
-          CAPTION=$'Lamp1onKernel Build\n━━━━━━━━━━━━━━━\n📱 Device: '"${{ env.DEVICE }}"$'\n🌿 Branch: '"$KERNEL_SOURCE_BRANCH"$'\n🔧 KPM Version: '"$KPM_STATUS"$'\n🛡 SusFs Version: Not Integrated\n📌 Compatible: '"${{ env.ANDROID_TAG }}"$'\n📅 Build: '"${{ env.BUILD_TIME }}"$'\n━━━━━━━━━━━━━━━'
+          CAPTION=$'Lamp1onKernel Build\n━━━━━━━━━━━━━━━\n📱 Device: '"${{ env.DEVICE }}"$'\n🌿 Branch: '"$KERNEL_SOURCE_BRANCH"$'\n🔧 KPM Version: '"$KPM_STATUS"$'\n🛡 SusFs Version: 2.0.0\n📌 Compatible: '"${{ env.ANDROID_TAG }}"$'\n📅 Build: '"${{ env.BUILD_TIME }}"$'\n━━━━━━━━━━━━━━━'
 
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.BOT_TOKEN }}/sendDocument" \
             -F chat_id=${{ secrets.CHAT_ID }} \
