@@ -520,7 +520,7 @@ jobs:
       - name: Zip AnyKernel3
         if: env.CHECK_FILE_IS_OK == 'true'
         run: |
-          ZIP_NAME="${{ env.ANDROID_TAG }}${{ env.KERNEL_LOCALVERSION }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}.zip"
+          ZIP_NAME="${{ env.ANDROID_TAG }}${{ env.KERNEL_LOCALVERSION }}-ksu-${{ env.DEVICE }}-${{ env.BUILD_TIME }}.zip"
 
           cd kernel_workspace/AnyKernel3
           zip -r "$ZIP_NAME" .
@@ -528,7 +528,7 @@ jobs:
       - name: Send AnyKernel3 to Telegram
         if: env.CHECK_FILE_IS_OK == 'true'
         run: |
-          ZIP_NAME="${{ env.ANDROID_TAG }}${{ env.KERNEL_LOCALVERSION }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}.zip"
+          ZIP_NAME="${{ env.ANDROID_TAG }}${{ env.KERNEL_LOCALVERSION }}-ksu-${{ env.DEVICE }}-${{ env.BUILD_TIME }}.zip"
           FILE="kernel_workspace/AnyKernel3/$ZIP_NAME"
 
           if [ "$KPM_SUPPORT" = "true" ]; then
