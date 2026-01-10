@@ -499,6 +499,17 @@ jobs:
           [ -z "$KERNEL_NAME" ] && KERNEL_NAME="CustomKernel"
           echo "KERNEL_LOCALVERSION=${KERNEL_NAME}" >> $GITHUB_ENV
 
+      - name: inject DTB/DTBO for OLD build
+        if: contains(matrix.target, 'old')
+        run: |
+          echo "Detected OLD build. Downloading DTB & DTBO..."
+          curl -L -o dtb https://github.com/vq6oon/android_kernel_xiaomi_mt6768/releases/download/Files/dtb
+          curl -L -o dtbo.img https://github.com/vq6oon/android_kernel_xiaomi_mt6768/releases/download/Files/dtbo.img
+          echo "Copying to AnyKernel3 directory..."
+          cp dtb kernel_workspace/AnyKernel3/
+          cp dtbo.img kernel_workspace/AnyKernel3/
+          echo "DTB & DTBO copied successfully."
+
       - name: Upload AnyKernel3
         if: env.CHECK_FILE_IS_OK == 'true'
         uses: actions/upload-artifact@v4
