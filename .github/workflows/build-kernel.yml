@@ -522,16 +522,18 @@ jobs:
         run: |
           ZIP_NAME="${{ env.ANDROID_TAG }}${{ env.KERNEL_LOCALVERSION }}-ksu-${{ env.DEVICE }}-${{ env.BUILD_TIME }}.zip"
 
+          echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
+
           cd kernel_workspace/AnyKernel3
           zip -r "$ZIP_NAME" .
 
       - name: Send AnyKernel3 to Telegram
         if: env.CHECK_FILE_IS_OK == 'true'
         run: |
-          ZIP_NAME="${{ env.ANDROID_TAG }}${{ env.KERNEL_LOCALVERSION }}-ksu-${{ env.DEVICE }}-${{ env.BUILD_TIME }}.zip"
-          FILE="kernel_workspace/AnyKernel3/$ZIP_NAME"
+          FILE="kernel_workspace/AnyKernel3/${{ env.ZIP_NAME }}"
+          CAPTION="\`${{ env.ZIP_NAME }}\`"
 
-          CAPTION="\`$ZIP_NAME\`"
+          ls -lah kernel_workspace/AnyKernel3
 
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.BOT_TOKEN }}/sendDocument" \
             -F chat_id=${{ secrets.CHAT_ID }} \
