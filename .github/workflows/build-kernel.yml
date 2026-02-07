@@ -29,26 +29,6 @@ on:
         required: true
         default: true
         type: boolean
-      build_wild:
-        description: "Build WildKernelSU A13+"
-        required: true
-        default: true
-        type: boolean
-      build_wild_old:
-        description: "Build WildKernelSU A11"
-        required: true
-        default: true
-        type: boolean
-      build_rksu:
-        description: "Build RsuntkKernelSU A13+"
-        required: true
-        default: true
-        type: boolean
-      build_rksu_old:
-        description: "Build RsuntkKernelSU A11"
-        required: true
-        default: true
-        type: boolean
 
 jobs:
   generate-build-matrix:
@@ -65,10 +45,6 @@ jobs:
           if [[ "${{ github.event.inputs.build_ksun_old }}" == "true" ]]; then targets+=("ksun-old"); fi
           if [[ "${{ github.event.inputs.build_suki }}" == "true" ]]; then targets+=("suki"); fi
           if [[ "${{ github.event.inputs.build_suki_old }}" == "true" ]]; then targets+=("suki-old"); fi
-          if [[ "${{ github.event.inputs.build_wild }}" == "true" ]]; then targets+=("wild"); fi
-          if [[ "${{ github.event.inputs.build_wild_old }}" == "true" ]]; then targets+=("wild-old"); fi
-          if [[ "${{ github.event.inputs.build_rksu }}" == "true" ]]; then targets+=("rksu"); fi
-          if [[ "${{ github.event.inputs.build_rksu_old }}" == "true" ]]; then targets+=("rksu-old"); fi
           json=$(printf '%s\n' "${targets[@]}" | jq -R . | jq -s '{target: .}')
           echo "matrix<<EOF" >> $GITHUB_OUTPUT
           echo "$json" >> $GITHUB_OUTPUT
@@ -104,19 +80,11 @@ jobs:
           TARGET_CONFIG_FILENAME="${{ matrix.target }}"
           TARGET_CONFIG_FILENAME="${TARGET_CONFIG_FILENAME/-old/}"
           TARGET_CONFIG_FILENAME_SUFFIX=$TARGET_CONFIG_FILENAME
-
-          if [[ "$TARGET_CONFIG_FILENAME_SUFFIX" == "wild" ]]; then
-            grep -v -E "^#|^\n" config-wild.env | sed 's/ #.*//; s/#.*//' >> $GITHUB_ENV
-          elif [[ "$TARGET_CONFIG_FILENAME_SUFFIX" == "rksu" ]]; then
-            grep -v -E "^#|^\n" config-rksu.env | sed 's/ #.*//; s/#.*//' >> $GITHUB_ENV
-          else
-            grep -v -E "^#|^\n" config-${TARGET_CONFIG_FILENAME_SUFFIX}.env | sed 's/ #.*//; s/#.*//' >> $GITHUB_ENV
-          fi
-
+          grep -v -E "^#|^\n" config-${TARGET_CONFIG_FILENAME_SUFFIX}.env | sed 's/ #.*//; s/#.*//' >> $GITHUB_ENV
           if [[ "${{ matrix.target }}" == *"-old" ]]; then
-            echo "ANDROID_TAG=[A11-12]" >> $GITHUB_ENV
+              echo "ANDROID_TAG=a11-12" >> $GITHUB_ENV
           else
-            echo "ANDROID_TAG=[A13+]" >> $GITHUB_ENV
+              echo "ANDROID_TAG=a13-16" >> $GITHUB_ENV
           fi
 
       - name: Check if old Android build
@@ -432,14 +400,14 @@ jobs:
         if: env.CHECK_FILE_IS_OK == 'true' && env.KPM_SUPPORT == 'true'
         run: |
           OUT_BOOT=$GITHUB_WORKSPACE/kernel_workspace/android-kernel/out/arch/${{ env.KERNEL_ARCH }}/boot
-          mkdir $GITHUB_WORKSPACE/kernel_workspace/SukiSU-Patch
-          cd $GITHUB_WORKSPACE/kernel_workspace/SukiSU-Patch
-          wget ${{ env.KPM_URL }}
+          mkdir $GITHUB_WORKSPACE/kernel_workspace/KPM_SUPPORT
+          cd $GITHUB_WORKSPACE/kernel_workspace/KPM_SUPPORT
+          wget ${{ env.KPTOOLS_URL }}
+          wget ${{ env.KPIMAGE_URL }} -O kpimg-linux
           cp $OUT_BOOT/Image ./
           cp $OUT_BOOT/dts/mediatek/mt6768.dtb ./
-          chmod +x patch_linux
-          ./patch_linux
-          mv -f oImage Image
+          chmod +x kptools-linux
+          ./kptools-linux -p -i Image -k kpimg-linux -o Image
           gzip -k Image
           cat Image.gz *.dtb > Image.gz-dtb
           mv -f Image.gz-dtb $OUT_BOOT/${{ env.KERNEL_IMAGE_NAME }}
@@ -510,30 +478,28 @@ jobs:
           cp dtbo.img kernel_workspace/AnyKernel3/
           echo "DTB & DTBO copied successfully."
 
-      - name: Upload AnyKernel3
-        if: env.CHECK_FILE_IS_OK == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.ANDROID_TAG }}${{ env.KERNEL_LOCALVERSION }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}
-          path: kernel_workspace/AnyKernel3/*
-
       - name: Zip AnyKernel3
         if: env.CHECK_FILE_IS_OK == 'true'
         run: |
-          ZIP_NAME="${{ env.ANDROID_TAG }}${{ env.KERNEL_LOCALVERSION }}-ksu-${{ env.DEVICE }}-${{ env.BUILD_TIME }}.zip"
+          ZIP_NAME="${{ env.KERNEL_LOCALVERSION }}-ksu-${{ env.ANDROID_TAG }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}.zip"
 
           echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
 
           cd kernel_workspace/AnyKernel3
           zip -r "$ZIP_NAME" .
 
+      - name: Upload AnyKernel3
+        if: env.CHECK_FILE_IS_OK == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.KERNEL_LOCALVERSION }}-${{ env.ANDROID_TAG }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}
+          path: kernel_workspace/AnyKernel3/${{ env.ZIP_NAME }}
+
       - name: Send AnyKernel3 to Telegram
         if: env.CHECK_FILE_IS_OK == 'true'
         run: |
           FILE="kernel_workspace/AnyKernel3/${{ env.ZIP_NAME }}"
           CAPTION="\`${{ env.ZIP_NAME }}\`"
-
-          ls -lah kernel_workspace/AnyKernel3
 
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.BOT_TOKEN }}/sendDocument" \
             -F chat_id=${{ secrets.CHAT_ID }} \
@@ -545,7 +511,7 @@ jobs:
         if: env.CHECK_FILE_IS_OK == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.KERNEL_IMAGE_NAME }}${{ env.LOCALVERSION }}${{ env.UPLOADNAME }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}
+          name: ${{ env.KERNEL_IMAGE_NAME }}${{ env.LOCALVERSION }}${{ env.UPLOADNAME }}-${{ env.ANDROID_TAG }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}
           path: kernel_workspace/android-kernel/out/arch/${{ env.KERNEL_ARCH }}/boot/${{ env.KERNEL_IMAGE_NAME }}
 
       - name: Upload DTBO image
